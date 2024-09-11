@@ -1,7 +1,8 @@
 pacman::p_load(
   jmastats,
   tidyverse,
-  janitor)
+  janitor,
+  here)
 
 
 BLOCK_NO <- "47674"
@@ -25,4 +26,4 @@ katsuura_1906_2023 <- set_names(YEAR_range) |>
 
 
 save(katsuura_1906_2023, 
-     file = hear("data", "katsuura_1906_2023.RData"))
+     file = here("data", "katsuura_1906_2023.RData"))
