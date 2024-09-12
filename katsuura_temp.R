@@ -11,7 +11,7 @@ pacman::p_load(
 
 BLOCK_NO <- "47674"
 YEAR_range <- 2024:2024
-MONTH_range <- 1:9
+MONTH_range <- 1:month(today())
 
 katsuura_2024 <- set_names(YEAR_range) |> 
   map_dfr(\(YEAR) 
@@ -62,27 +62,25 @@ month_labs <- seq(as.Date("2001/1/1"),
 avg <- df |>
   dplyr::filter(year > 1990 & year < 2021) |>
   group_by(yrday) |>
-  dplyr::filter(yrday != 366) |>
+  filter(yrday != 366) |>
   summarize(mean_9120 = mean(average_c, na.rm = TRUE),
             sd_9120 = sd(average_c, na.rm = TRUE)) |>
   mutate(fill = colors[2],
          color = colors[2])
 
 df_out <- df |>
-  #dplyr::filter(year > 1980) |>
   mutate(year_flag = case_when(
     year == 2023 ~ "2023",
     year == 2024 ~ "2024",
     .default = "All other years"))
 
+lastDay <- df |>
+  filter(date >= today() - 7) |> 
+  filter(!is.na(average_c)) |>
+  filter(date == max(date))
 
-today <- df |>
-  dplyr::filter(year == 2024) |> 
-  dplyr::filter(month == max(month)) |> 
-  dplyr::filter(!is.na(average_c)) |> 
-  dplyr::filter(day == max(day))
+LastDate <- gsub("-", "/", lastDay |> pull(date))
 
-LastDate <- gsub("-", "/", gsub("-0", "/", today$date))
 
 
 yIntercept <- c(0, 10, 20, 30)
@@ -115,13 +113,13 @@ ggplot() +
             mapping = aes(x = yrday,
                           y = mean_9120),
             linewidth = 1.5, color = "cornflowerblue") +
-  geom_line(data = df |> dplyr::filter(year == 2023), 
+  geom_line(data = df |> filter(year == 2023), 
             aes(x = yrday, y = average_c),
             color = "darkorange", linewidth = 0.7, alpha = 0.7) +
-  geom_line(data = df |> dplyr::filter(year == 2024),
+  geom_line(data = df |> filter(year == 2024),
             aes(x = yrday, y = average_c),
             color = "darkmagenta", linewidth = 0.7, alpha = 0.7) +
-  geom_point(data = today, aes(x = yrday, y = average_c),
+  geom_point(data = lastDay, aes(x = yrday, y = average_c),
              color = "darkmagenta", size = 2) +
   theme_classic() +
   guides(
