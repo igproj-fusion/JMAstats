@@ -15,12 +15,12 @@ pacman::p_load(
   stringi)
 
 
-PREF.list <- read.csv("https://raw.githubusercontent.com/igproj-fusion/R-gis/main/Prefecture_list.csv")
+PREF.list <- read.csv("https://raw.githubusercontent.com/igproj-fusion/R-gis/main/Prefecture_list.csv") |> 
+  mutate(PREF_en = toTitleCase(tolower(PREF_en)))
+  
 
 ### confirm Prefecture ###
-PREF.list |> 
-  mutate(PREF_en = toTitleCase(tolower(PREF_en))) |>
-  pull(PREF_en)
+PREF.list |> pull(PREF_en)
 
 ### Set Prefecture ###
 PREFECTURE = "Chiba"
@@ -28,39 +28,31 @@ PREFECTURE = "Chiba"
 
 PREF.code <- PREF.list |> 
   mutate(CODE = formatC(CODE, width = 2, flag = "0")) |>
-  mutate(PREF_en = toTitleCase(tolower(PREF_en))) |> 
   filter(PREF_en == PREFECTURE) |> 
   pull(CODE)
 
 
 data("stations", package = "jmastats")
-
-### confirm Station Name ###
-stations |> 
-  filter(pref_code == PREF.code) |> 
+stations.temp <- stations |>
   filter(station_type %in% c("四", "三", "官")) |>
+  filter(pref_code == PREF.code) |> 
   group_by(block_no) |>
   distinct(block_no, .keep_all = TRUE) |> 
   mutate(Latn = 
            stri_trans_general(katakana, "Any-Latn")) |> 
-  mutate(Latn = toTitleCase(tolower(Latn))) |> 
-  pull(Latn)
+  mutate(Latn = toTitleCase(tolower(Latn))) 
+  
+
+### confirm Station Name ###
+stations.temp |> pull(Latn)
 
 ### Set Station Name ###
 STATION = "Tateyama"
 
 
-BLOCK_NO <- stations |> 
-  filter(pref_code == PREF.code) |> 
-  filter(station_type %in% c("四", "三", "官")) |>
-  group_by(block_no) |>
-  distinct(block_no, .keep_all = TRUE) |> 
-  mutate(Latn = 
-           stri_trans_general(katakana, "Any-Latn")) |> 
-  mutate(Latn = toTitleCase(tolower(Latn))) |> 
+BLOCK_NO <- stations.temp |>
   filter(Latn == STATION) |>
   pull(block_no)
-
 
 START.year <- 
   jma_collect(item = "annually",
@@ -75,6 +67,7 @@ START.year <-
 END.year <- 2023
 
 
+
 temp.df <- set_names(START.year:END.year) |> 
   map_dfr(\(YEAR) 
           set_names(1:12) |> 
@@ -85,6 +78,7 @@ temp.df <- set_names(START.year:END.year) |>
                             month = MONTH, 
                             cache = FALSE)) |> 
             bind_rows()) 
+
 
 
 df.name <- paste0(STATION, "_", START.year, "_", END.year)
