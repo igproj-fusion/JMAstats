@@ -66,7 +66,7 @@ END.year <- 2023
 
 
 
-temp.df <- set_names(START.year:END.year) |> 
+df <- set_names(START.year:END.year) |> 
   map_dfr(\(YEAR) 
           set_names(1:12) |> 
             map(\(MONTH) 
@@ -78,8 +78,6 @@ temp.df <- set_names(START.year:END.year) |>
             bind_rows()) 
 
 
-
-RData.name <- paste0(PREFECTURE, STATION, 
-                  "_", START.year, "_", END.year, ".RData")
-save(temp.df, file = here("data", RData.name))
-
+RDS.name <- paste0(PREFECTURE, STATION, 
+                  "_", START.year, "_", END.year, ".rds")
+saveRDS(df, file = here("data", RDS.name))
