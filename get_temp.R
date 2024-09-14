@@ -91,7 +91,7 @@ temp.df <- set_names(START.year:END.year) |>
 
 
 df.name <- paste0(STATION, "_", START.year, "_", END.year)
-RData.name <- paste0(df.name, ".RData")
 assign(df.name, temp.df)
 
+RData.name <- paste0(df.name, ".RData")
 save(df.name, file = here("data", RData.name))
