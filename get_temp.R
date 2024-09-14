@@ -37,8 +37,7 @@ stations.temp <- stations |>
   filter(pref_code == PREF.code) |> 
   group_by(block_no) |>
   distinct(block_no, .keep_all = TRUE) |> 
-  mutate(Latn = 
-           stri_trans_general(katakana, "Any-Latn")) |> 
+  mutate(Latn = stri_trans_general(katakana, "Any-Latn")) |> 
   mutate(Latn = toTitleCase(tolower(Latn))) 
   
 
