@@ -9,7 +9,6 @@
 pacman::p_load(
   jmastats,
   tidyverse,
-  janitor,
   here,
   tools,
   stringi)
