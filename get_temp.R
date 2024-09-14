@@ -11,10 +11,7 @@ pacman::p_load(
   tidyverse,
   janitor,
   here,
-  ggridges,
-  ggthemes,
   tools,
-  sf,
   stringi)
 
 
