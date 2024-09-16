@@ -1,7 +1,9 @@
 ######################################################
 #
-# 47都道府県と観測所を指定して、
-# 気温観測を開始した年から2023年までの各日の気象データ取得
+# 郵便住所.jp
+# 「都道府県の情報をCSVでダウンロードする」
+#   [すべての項目を選択する]
+#   https://postaladdress.jp/prefecture/download
 #
 ######################################################
 
@@ -19,10 +21,12 @@ PREF.list <- read.csv("https://raw.githubusercontent.com/igproj-fusion/R-gis/mai
   
 
 ### confirm Prefecture ###
-PREF.list |> pull(PREF_en)
+PREF <- PREF.list |> pull(PREF_en)
+PREF.NO <- menu(PREF, title = "Select one prefecture")
+
 
 ### Set Prefecture ###
-PREFECTURE = "Chiba"
+PREFECTURE <- PREF[PREF.NO]
 
 
 PREF.code <- PREF.list |> 
@@ -37,20 +41,24 @@ stations.temp <- stations |>
   filter(pref_code == PREF.code) |> 
   group_by(block_no) |>
   distinct(block_no, .keep_all = TRUE) |> 
-  mutate(Latn = stri_trans_general(katakana, "Any-Latn")) |> 
+  mutate(Latn = 
+           stri_trans_general(katakana, "Any-Latn")) |> 
   mutate(Latn = toTitleCase(tolower(Latn))) 
   
 
 ### confirm Station Name ###
-stations.temp |> pull(Latn)
+STAT <- stations.temp |> pull(Latn)
+STAT.NO <- menu(STAT, title = "Select one station")
+
 
 ### Set Station Name ###
-STATION = "Tateyama"
+STATION = STAT[STAT.NO]
 
 
 BLOCK_NO <- stations.temp |>
   filter(Latn == STATION) |>
   pull(block_no)
+
 
 START.year <- 
   jma_collect(item = "annually",
