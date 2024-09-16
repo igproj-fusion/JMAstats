@@ -1,46 +1,7 @@
-pacman::p_load(
-  jmastats,
-  tidyverse,
-  janitor,
-  here,
-  ggridges,
-  ggthemes)
-
-
-
-
-BLOCK_NO <- "47674"
-YEAR_range <- 2024:2024
-MONTH_range <- 1:month(today())
-
-katsuura_2024 <- set_names(YEAR_range) |> 
-  map_dfr(\(YEAR) 
-          set_names(MONTH_range) |> 
-            map(\(MONTH) 
-                jma_collect(item = "daily",
-                            block_no = BLOCK_NO,
-                            year = YEAR, 
-                            month = MONTH, 
-                            cache = FALSE)) |> 
-            bind_rows()) |>
-  unnest(cols = c(pressure, precipitation, 
-                  temperature, humidity, wind,
-                  sunshine, snow, weather_time)) |> 
-  clean_names()
-
-
-tmp_dir <- tempdir()
-rData_file <- file.path(tmp_dir, "katsuura_1906_2023.RData")
-URL <- "https://github.com/igproj-fusion/JMAstats/raw/main/katsuura_1906_2023.RData"
-download.file(URL, destfile = rData_file)
-
-load(rData_file)                     
-katsuura.df <- rbind(katsuura_1906_2023, katsuura_2024)
-
-
-
-
-df <- katsuura.df |>
+df <- df.all |>
+  select(date, temperature) |> 
+  unnest(temperature) |> 
+  clean_names() |> 
   mutate(year = year(date),
          month = month(date),
          day = day(date),
@@ -60,7 +21,7 @@ month_labs <- seq(as.Date("2001/1/1"),
 
 
 avg <- df |>
-  dplyr::filter(year > 1990 & year < 2021) |>
+  filter(year > 1990 & year < 2021) |>
   group_by(yrday) |>
   filter(yrday != 366) |>
   summarize(mean_9120 = mean(average_c, na.rm = TRUE),
@@ -125,13 +86,11 @@ ggplot() +
   guides(
     x = guide_axis(cap = "both"),
     y = guide_axis(minor.ticks = TRUE, cap = "both"),
-    color = guide_legend(override.aes = list(linewidth = 1.5))
-  ) +
+    color = guide_legend(override.aes = list(linewidth = 1.5))) +
   labs(x = "", y = "Mean Temperature (°Celsius)",
        color = "Year",
-       title = "Mean Daily Temperature, Katsuura, Chiba",
-       subtitle = paste0("1906/1/1~", 
-                         LastDate),
+       title = paste0("Mean Daily Temperature: ", STATION, ", ", PREFECTURE),
+       subtitle = paste0(gsub("-", "/", df$date[1]), "~", LastDate),
        caption = "https://www.data.jma.go.jp/obd/stats/etrn/index.php") +
   theme(plot.margin= unit(c(1, 1, 1, 1), "lines"),
         axis.line = element_line(color = "gray30", linewidth = rel(1)),
