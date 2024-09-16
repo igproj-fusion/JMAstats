@@ -106,7 +106,7 @@ RDS.name <- paste0(PREFECTURE, STATION, "_", START.year.org,
 
 tmp_dir <- tempdir()
 RDS_file <- file.path(tmp_dir, RDS.name)
-URL0 <- "https://raw.githubusercontent.com/igproj-fusion/JMAstats/main/ChibaRds/"
+URL0 <- "https://raw.githubusercontent.com/igproj-fusion/JMAstats/main/Rds/"
 URL <- paste0(URL0, RDS.name)
 download.file(URL, destfile = RDS_file)
 
