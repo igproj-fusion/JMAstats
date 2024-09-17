@@ -82,6 +82,6 @@ df <- set_names(START.year:END.year) |>
             bind_rows()) 
 
 
-RDS.name <- paste0(PREFECTURE, STATION, 
+RDS.name <- paste0(PREFECTURE, "_", STATION, 
                   "_", START.year, "_", END.year, ".rds")
 saveRDS(df, file = here("data", RDS.name))
