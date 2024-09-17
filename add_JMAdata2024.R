@@ -12,8 +12,7 @@ pacman::p_load(
   janitor,
   here,
   tools,
-  stringi,
-  bazar)
+  stringi)
 
 
 PREF.list <- read.csv("https://raw.githubusercontent.com/igproj-fusion/R-gis/main/Prefecture_list.csv") |> 
