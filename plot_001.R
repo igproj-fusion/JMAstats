@@ -66,7 +66,7 @@ ggplot() +
   scale_color_manual(values = c("darkorange", "darkmagenta", "grey80")) +
   scale_x_continuous(breaks = month_labs$yrday, 
                      labels = month_labs$month_lab) +
-  scale_y_continuous(breaks = seq(0, 30, 10),
+  scale_y_continuous(breaks = seq(0, 35, 10),
                      limits = c(-5, 30),
                      expand = expansion(mult = c(-0.05, 0.05))) +
   geom_line(linewidth = rel(1)) +
