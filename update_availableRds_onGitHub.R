@@ -17,57 +17,45 @@ pacman::p_load(
 ############################################################
 
 github.rds.url = "https://github.com/igproj-fusion/JMAstats/tree/main/Rds47"
-github.dir = "/igproj-fusion/JMAstats/blob/main/Rds47/"
 
-result <- data.frame(value = NULL)
-while(length(result$value) == 0){
-  Sys.sleep(5)
-
+result <- NULL
+while(length(result) == 0){
   result <- read_html(github.rds.url) |>
     html_nodes("a") |>
     html_attr("href") |>
-    str_subset("\\.rds") |> 
-    as_tibble() |>
-    distinct(value, .keep_all = TRUE)
+    str_subset("\\.rds")
 }
 
 
-Today <- today() |> 
-  print() |> 
-  as_tibble() |> 
-  mutate(Year = substring(value, 1, 4)) |> 
-  mutate(Month = substring(value, 6, 7))
-
-ThisYear <- as.integer(Today$Year)
-ThisMonth <- as.integer(Today$Month)
+ThisYear <- as.integer(year(today()))
+ThisMonth <- as.integer(month(today()))
 
 URL.dl <- "https://raw.githubusercontent.com/igproj-fusion/JMAstats/main/Rds47/"
+github.dir = "/igproj-fusion/JMAstats/blob/main/Rds47/"
 
 rds.file <- result |> 
+  as_tibble() |> 
+  distinct(value, .keep_all = TRUE) |> 
   mutate(value2 = gsub(github.dir, "", value)) |> 
-  mutate(value3 = gsub("JMA_", "", value2)) |>
-  mutate(value3 = gsub(".rds", "", value3)) |>
+  mutate(value3 = gsub(".rds", "", value2)) |> 
   separate(
     value3,
-    into = c("PREFECTURE", "START.ym"),
+    into = c("DUMMY", "PREFECTURE", "YM"),
     sep = "_",
     remove = TRUE) |>
-  mutate(Year = as.integer(substring(START.ym, 1, 4))) |> 
-  mutate(Month = as.integer(substring(START.ym, 5, 6))) |> 
+  mutate(Year = as.integer(substring(YM, 1, 4))) |> 
+  mutate(Month = as.integer(substring(YM, 5, 6))) |> 
   mutate(URL_DL = paste0(URL.dl, value2)) |> 
-  mutate(FLAG = ifelse(ThisMonth - Month >= 2,
-                       1, 0)) |> 
+  mutate(FLAG = ifelse(ThisMonth - Month >= 2, 1, 0)) |> 
   mutate(FLAG = ifelse(ThisYear > Year, 1, FLAG)) |> 
   filter(FLAG == 1) |> 
   mutate(nextYear = Year) |> 
   mutate(nextMonth = Month + 1) |> 
-  mutate(nextYear = ifelse(nextMonth == 13,
-                           Year + 1, nextYear)) |> 
-  mutate(nextMonth = ifelse(nextMonth == 13, 
-                            nextMonth - 12, nextMonth)) |> 
+  mutate(nextYear = ifelse(nextMonth == 13, Year + 1, nextYear)) |> 
+  mutate(nextMonth = ifelse(nextMonth == 13, nextMonth - 12, nextMonth)) |> 
   mutate(newRDS = paste0("JMA_", PREFECTURE, "_", nextYear, 
-                         formatC(nextMonth, 
-                                 width = 2, flag = "0"), ".rds"))
+                         formatC(nextMonth, width = 2, flag = "0"), ".rds"))
+
 
                 
 ############################################################
